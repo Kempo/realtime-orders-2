@@ -5,11 +5,16 @@ import { Context } from "./context";
 export const resolvers = {
   Query: {
     orders: async (_, __, context: Context, ___) => { 
-      return context.prisma.order.findMany({
-        orderBy: {
-          createdAt: 'desc'
-        }
+      const sessions = await context.stripe.checkout.sessions.list({
+        expand: ['data.line_items']
       });
+      
+      // filter here then return!
+
+      // console.log(sessions.data[0].line_items?.data);
+      console.log(sessions.data)
+
+      return sessions.data;
     },
     order: async (_, { sessionId }, context: Context, ___) => {
       if(!sessionId) {
@@ -19,32 +24,24 @@ export const resolvers = {
       const stripeResponse = await context.stripe.checkout.sessions.listLineItems(sessionId);
 
       // TODO: add `sessionId` to order object. Prefer database to API call
-      const transformed = stripeResponse.data.map(el => ({
-        title: el.description,
-        amountTotal: el.amount_total,
-        quantity: el.quantity
-      }));
+      // const transformed = stripeResponse.data.map(el => ({
+      //   title: el.description,
+      //   amountTotal: el.amount_total,
+      //   quantity: el.quantity
+      // }));
 
-      return transformed;
+      return stripeResponse.data;
     },
     menu: async (_, __, context: Context, ___) => {
-      // TODO: pagination
-      // Ignore the seed items that have an invalid `id` (eg. the tip item).
-      const menuItems = await context.prisma.item.findMany({
-        orderBy: {
-          id: 'asc'
-        },
-        where: {
-          id: {
-            not: -1
-          }
-        }
-      }).catch(err => {
-        console.log(err);
-        throw new ApolloError('Unable to query database');
+      const menuItems = await context.stripe.products.list({
+        expand: ['data.default_price']
       });
 
-      return menuItems;
+      console.log(menuItems);
+
+      console.log((menuItems.data[0] as any).default_price);
+
+      return menuItems.data;
     }
   },
   Mutation: {
@@ -52,6 +49,8 @@ export const resolvers = {
       if(!input.lineItems) {
         throw new ApolloError('No line items provided');
       }
+
+      // line item contains `quantity` and `price` (converted from `priceId`) 
 
       const line_items = await convertCheckoutPayloadToStripe(input.lineItems, context);
 
@@ -64,7 +63,10 @@ export const resolvers = {
         line_items,
         mode: 'payment',
         success_url: `${process.env.BASE_URL}/order?success=true&id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.BASE_URL}`
+        cancel_url: `${process.env.BASE_URL}`,
+        metadata: {
+          "created_at": Date.now()
+        }
       }).catch(err => { 
         console.log(err);
         throw new ApolloError('Unable to create checkout session.');
@@ -73,16 +75,6 @@ export const resolvers = {
       return {
         sessionId: session.id
       }
-    }
-  },
-  Order: {
-    lineItems: async (order, _, context: Context, __) => {
-      return context.loaders['lineItems'].load(order.id);
-    }
-  },
-  LineItem: {
-    item: async (lineItem, _, context: Context, __) => {
-      return context.loaders['item'].load(lineItem.itemId);
     }
   }
 }

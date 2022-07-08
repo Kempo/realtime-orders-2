@@ -21,7 +21,7 @@ export async function fulfillOrder(sessionId: string, context: Context) {
 
   const itemTitles = reduceToTitles(purchasedItems.data);
 
-  const connectedItems = await fetchPrismaItems(itemTitles, context);
+  const connectedItems = [] as any; // await fetchPrismaItems(itemTitles, context);
 
   if(connectedItems.length !== itemTitles.length) {
     throw new Error('Original item length does not match with connected items.');
@@ -59,17 +59,17 @@ function reduceToTitles(items: Stripe.LineItem[]) {
   }, []);
 }
 
-async function fetchPrismaItems(titles: string[], ctx: Context) {
-  // TODO: avoid matching by titles
-  return ctx.prisma.item.findMany({
-    where: {
-      title: {
-        in: titles
-      }
-    },
-    select: {
-      id: true,
-      title: true
-    }
-  });
-}
+// async function fetchPrismaItems(titles: string[], ctx: Context) {
+//   // TODO: avoid matching by titles
+//   return ctx.prisma.item.findMany({
+//     where: {
+//       title: {
+//         in: titles
+//       }
+//     },
+//     select: {
+//       id: true,
+//       title: true
+//     }
+//   });
+// }

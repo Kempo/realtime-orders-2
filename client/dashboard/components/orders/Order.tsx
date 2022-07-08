@@ -2,22 +2,22 @@ import styles from '../../styles/Order.module.css';
 
 const formatDate = (timestamp: string) => (new Date(parseInt(timestamp)));
 
-export default function Order({ id, title, lineItems, totalPrice, createdAt }) {
+export default function Order({ id, amount_total, description, created_at, line_items  }) {
   return (
     <div className={styles.order}>
       <div className={styles.timestamp}>
-        <p className={styles.date}>{formatDate(createdAt).toLocaleDateString('en-US')}</p>
-        <p className={styles.time}>{formatDate(createdAt).toLocaleTimeString('en-US')}</p>
+        <p className={styles.date}>{formatDate(created_at).toLocaleDateString('en-US')}</p>
+        <p className={styles.time}>{formatDate(created_at).toLocaleTimeString('en-US')}</p>
       </div>
       {
-        title && <p className={styles.orderTitle}>{title}</p>
+        description && <p className={styles.orderTitle}>{description}</p>
       }
       <br />
       <br />
       <ul>
-        {lineItems.map(lineItem => <LineItem lineItem={lineItem} />)}
+        {line_items.data.map((lineItem, i) => <LineItem lineItem={lineItem} index={i} />)}
         <li className={styles.price}>
-          <p>{totalPrice}</p>
+          <p>{amount_total}</p>
         </li>
       </ul>
       <br />
@@ -28,10 +28,10 @@ export default function Order({ id, title, lineItems, totalPrice, createdAt }) {
   )
 }
 
-function LineItem({ lineItem }) {
+function LineItem({ lineItem, index }) {
   return (
-    <li key={lineItem.id}>
-        <p><b>{lineItem.id === -1 ? "$" : ""}{lineItem.quantity}</b> {lineItem.item.title}</p>
+    <li key={`${lineItem.description}-${index}`}>
+        <p><b>{lineItem.quantity}</b> {lineItem.description}</p>
     </li>
   )
 }

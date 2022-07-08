@@ -6,10 +6,6 @@
   "scripts": {
     "dev": "nodemon --exec 'ts-node -r dotenv/config' ./src/index.ts",
     "prod": "ts-node ./src/index.ts",
-    "db:migrate": "prisma migrate dev",
-    "db:reset": "prisma migrate reset",
-    "db:seed": "prisma db seed --preview-feature",
-    "studio": "prisma studio",
     "script": "ts-node ad-hoc.ts",
     "test": "jest"
   },
@@ -20,11 +16,9 @@
     "@types/node": "^14.14.22",
     "jest": "^26.6.3",
     "nodemon": "^2.0.7",
-    "prisma": "^2.25.0",
     "ts-jest": "^26.5.6"
   },
   "dependencies": {
-    "@prisma/client": "^2.25.0",
     "apollo-server-express": "^2.21.0",
     "cors": "^2.8.5",
     "dataloader": "^2.0.0",

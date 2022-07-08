@@ -12,21 +12,19 @@ const formatter = new Intl.NumberFormat(
 );
 
 const ORDERS = gql`
-  query fetchOrders {
-    orders {
-      title
-      id
-      createdAt
-      totalPrice
-      lineItems {
-        id
+query fetchOrders {
+  orders {
+    id
+    amount_total
+    status
+    line_items {
+      data {
+        description
         quantity
-        item {
-          title
-        }
       }
     }
   }
+}
 `;
 
 const INTERVAL = 3000;

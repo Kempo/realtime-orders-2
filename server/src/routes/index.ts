@@ -35,18 +35,20 @@ const saveOrder = async (session: Stripe.Checkout.Session) => {
 
   const customer = await stripe.customers.retrieve(session.customer as string);
 
-  return ctx.prisma.order.create({
-    data: {
-      title: customer['name'],
-      totalPrice,
-      lineItems: {
-        create: createPayload
-      }
-    },
-    include: {
-      lineItems: true
-    }
-  });
+  return "Order saved!";
+
+  // return ctx.prisma.order.create({
+  //   data: {
+  //     title: customer['name'],
+  //     totalPrice,
+  //     lineItems: {
+  //       create: createPayload
+  //     }
+  //   },
+  //   include: {
+  //     lineItems: true
+  //   }
+  // });
 }
 
 routes.post('/v1/payment/complete', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -86,7 +88,7 @@ routes.post('/v1/payment/complete', express.raw({ type: 'application/json' }), a
 
 routes.get('/health', (req, res) => {
   res.status(200).json({
-    prisma: ctx.prisma ? true : false
+    good: true
   })
 })
 

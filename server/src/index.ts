@@ -34,34 +34,64 @@ const typeDefs = gql`
   }
 
   type Query {
-    orders: [Order]
-    menu: [Item]
+    orders: [StripeCheckoutSession]
+    menu: [StripeProduct]
     order(sessionId: String): [StripeLineItemResponse]
   }
 
+  type StripeLineItemExpanded {
+    data: [StripeLineItemResponse]
+  }
+
+  type StripeCheckoutSession {
+    id: String
+    customer: String
+    payment_status: String
+    amount_subtotal: Int
+    amount_total: Int
+    livemode: Boolean
+    status: String
+    line_items: StripeLineItemExpanded
+    metadata: StripeCheckoutSessionMetadata
+  }
+
+  type StripeCheckoutSessionMetadata {
+    created_at: Int
+  }
+
+  type StripeProduct {
+    id: String
+    name: String
+    description: String
+    metadata: StripeProductMetadata
+    active: Boolean
+    default_price: StripePrice
+  }
+
+  type StripePrice {
+    id: String
+    currency: String
+    unit_amount: Int
+    product: String
+  }
+
+  type StripeProductMetadata {
+    Category: String
+  }
+
   type StripeLineItemResponse {
-    title: String
+    description: String
     quantity: Int
-    amountTotal: Int
+    amount_total: Int
   }
 
-  input LineItemInput {
-    itemId: Int
+  input StripeLineItemInput {
+    priceId: String
     quantity: Int
-  }
-
-  input CreateOrderInput {
-    title: String
-    lineItems: [LineItemInput]
   }
 
   input CreateCheckoutSessionInput {
-    lineItems: [LineItemInput]
-  }
-
-  type CreateOrderPayload {
-    order: Order
-    errors: [String]
+    lineItems: [StripeLineItemInput]
   }
 
   type CreateCheckoutSessionPayload {
@@ -100,8 +130,10 @@ app.listen({ port: PORT }, () => {
 });
 
 process.on('SIGINT', async () => {
-  await ctx.prisma.$disconnect().then(() => {
-    console.log('\n👋  Exiting...');
-    process.exit(1);
-  });
+  // await ctx.prisma.$disconnect().then(() => {
+  //   console.log('\n👋  Exiting...');
+  //   process.exit(1);
+  // });
+  console.log('\n👋  Exiting...')
+  process.exit(1);
 });
